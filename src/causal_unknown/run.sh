@@ -1,0 +1,4 @@
+# python main.py --model CausalDiscovery --epoch 10 --val_neg 100 --test_neg 100 --batch_size 32 --gpu 0 --max_hist 5 --metrics hit@1,hit@5 --intervention_ratio 0.01
+python main.py --model GRU4Rec --val_neg 100 --test_neg 100 --epoch 100 --batch_size 512 --gpu 0 --max_hist 5 --metrics hit@1,hit@5,ndcg@5,mrr --seed 2019 
+# python main.py --model InterGRUCausalDiscovery --epoch 100 --val_neg 100 --test_neg 100 --batch_size 512 --gpu 0 --max_hist 5 --metrics hit@1,hit@5
+# python main.py --model CSL4RS --opt rmsprop --epoch 100 --val_neg 100 --test_neg 100 --batch_size 512 --gpu 1 --max_hist 5 --metrics hit@1,hit@5 --eval_batch_size 256 * 128 --seed 2019 

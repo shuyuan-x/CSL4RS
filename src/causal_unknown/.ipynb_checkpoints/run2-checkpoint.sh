@@ -1,0 +1,1 @@
+python main.py --model CSL4RS --opt rmsprop --epoch 100 --val_neg 50 --test_neg 100 --batch_size 1024 --gpu 1 --max_hist 5 --metrics hit@1,hit@5,ndcg@5,mrr --eval_batch_size 256 * 256 --seed 2019 
