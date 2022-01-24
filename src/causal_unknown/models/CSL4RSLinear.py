@@ -6,13 +6,11 @@ import numpy as np
 import math
 import pdb
 
-class CSL4RS(BaseModel):
+class CSL4RSLinear(BaseModel):
     loader = 'HistLoader'
     runner = 'CSL4RSRunner'
     
     def parse_model_args(parser):
-        parser.add_argument('--hidden_size_MLP', default=4, type=int,
-                           help='Size of hidden vectors')
         parser.add_argument('--hidden_size_GRU', default=64, type=int,
                            help='Size of hidden vectors in GRU')
         parser.add_argument('--num_layers', default=1, type=int,
@@ -21,8 +19,7 @@ class CSL4RS(BaseModel):
                            help='Size of embedding')
         return BaseModel.parse_model_args(parser)
     
-    def __init__(self, hidden_size_MLP, hidden_size_GRU, num_layers, emb_size, *args, **kwargs):
-        self.hidden_size_MLP = hidden_size_MLP
+    def __init__(self, hidden_size_GRU, num_layers, emb_size, *args, **kwargs):
         self.hidden_size_GRU = hidden_size_GRU
         self.num_layers = num_layers
         self.emb_size = emb_size
@@ -35,15 +32,10 @@ class CSL4RS(BaseModel):
         self.cat_num = 1
         Ns = self.item_num * self.cat_num
         M = self.item_num
-        H = self.hidden_size_MLP
-        self.W0 = torch.nn.Parameter(torch.empty(M, Ns, H))
-        self.B0 = torch.nn.Parameter(torch.empty(M, H))
-        self.W1 = torch.nn.Parameter(torch.empty(M, H, self.cat_num))
-        self.B1 = torch.nn.Parameter(torch.empty(M, self.cat_num))
+        self.W0 = torch.nn.Parameter(torch.empty(M, Ns, self.cat_num))
+        self.B0 = torch.nn.Parameter(torch.empty(M, self.cat_num))
         torch.nn.init.uniform_(self.W0, b=0.1)
-        torch.nn.init.uniform_(self.W1, b=0.1)
         torch.nn.init.uniform_(self.B0, b=0.1)
-        torch.nn.init.uniform_(self.B1, b=0.1)
         self.gumbel_adj = GumbelAdjacency(self.item_num)
         self.LeakyRelu = torch.nn.LeakyReLU(0.1)
         self.adj = torch.ones((self.item_num, self.item_num)) - torch.eye(self.item_num)
@@ -63,9 +55,7 @@ class CSL4RS(BaseModel):
         
         masked_input = mask.to(torch.float) * one_hot.to(torch.float)
         format_input = masked_input.view(masked_input.shape[0], 1, masked_input.shape[1])
-        hidden_pred = torch.matmul(format_input, self.W0[iids]).reshape(masked_input.shape[0],self.hidden_size_MLP) + self.B0[iids]
-        hidden_input = self.LeakyRelu(hidden_pred).view(hidden_pred.shape[0], 1, hidden_pred.shape[1])
-        pred = torch.matmul(hidden_input, self.W1[iids]).reshape(masked_input.shape[0],self.cat_num) + self.B1[iids]
+        pred = torch.matmul(format_input, self.W0[iids]).reshape(masked_input.shape[0],self.cat_num) + self.B0[iids]
         mlp_prediction = pred.sigmoid().view([-1])
         
         
@@ -94,9 +84,7 @@ class CSL4RS(BaseModel):
         
         masked_input = mask.to(torch.float) * one_hot.to(torch.float)
         format_input = masked_input.view(masked_input.shape[0], 1, masked_input.shape[1])
-        hidden_pred = torch.matmul(format_input, self.W0[iids]).reshape(masked_input.shape[0],self.hidden_size_MLP) + self.B0[iids]
-        hidden_input = self.LeakyRelu(hidden_pred).view(hidden_pred.shape[0], 1, hidden_pred.shape[1])
-        pred = torch.matmul(hidden_input, self.W1[iids]).reshape(masked_input.shape[0],self.cat_num) + self.B1[iids]
+        pred = torch.matmul(format_input, self.W0[iids]).reshape(masked_input.shape[0],self.cat_num) + self.B0[iids]
         mlp_prediction = pred.sigmoid().view([-1])
         
         # GRU
@@ -126,8 +114,8 @@ class CSL4RS(BaseModel):
         item_vec = self.iid_embeddings(iids)
         gru_prediction = (rnn_vec * item_vec).sum(dim=1).view([-1]).sigmoid()
         
-        prediction = gru_prediction
-#         prediction = torch.pow(mlp_prediction, 1-R) * torch.pow(gru_prediction, R)
+#         prediction = gru_prediction
+        prediction = torch.pow(mlp_prediction, 1-R) * torch.pow(gru_prediction, R)
         
         out_dict = {'prediction': prediction}
         return out_dict

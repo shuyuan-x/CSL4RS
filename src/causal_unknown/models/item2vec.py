@@ -1,11 +1,13 @@
 from models.BaseModel import BaseModel
 import torch
 import torch.nn.functional as F
+import numpy as np
+import math
 import pdb
 
-class MF(BaseModel):
-    loader = 'MatchingLoader'
-    runner = 'PointwiseRunner'
+class item2vec(BaseModel):
+    loader = 'HistLoader'
+    runner = 'BaseRunner'
     
     def parse_model_args(parser):
         parser.add_argument('--emb_size', default=64, type=int,
@@ -44,6 +46,25 @@ class MF(BaseModel):
         """
         estimation for training
         """
+        iids = batch['iid'].to(torch.long).to(self.dummy_param.device)
+        negs = batch['negative'].to(torch.long).to(self.dummy_param.device).view([-1])
+        pad_his = batch['history'].to(torch.long).to(self.dummy_param.device)
+        
+        bs, his_lens = pad_his.shape[0], pad_his.shape[1]
+        
+        iids = iids.view(-1,1).expand(bs, his_lens).reshape(-1)
+        negs = negs.view(-1,1).expand(bs, his_lens).reshape(-1)
+        his = pad_his.reshape(-1)
+        
+        his_item_vec = self.iid_embeddings(his)
+        
+        pos_item_vec = self.iid_embeddings(iids)
+        pos_prediction = (his_item_vec * pos_item_vec).sum(dim=1).view([-1])
+        neg_item_vec = self.iid_embeddings(negs)
+        neg_prediction = (his_item_vec * neg_item_vec).sum(dim=1).view([-1])
+        out_dict = {'pos_prediction': pos_prediction, 'neg_prediction': neg_prediction}
+        
+        
         return self.predict(batch)
     
     def forward(self, batch):
@@ -51,6 +72,7 @@ class MF(BaseModel):
         calculate the loss
         """
         out_dict = self.estimate(batch)
-        loss = self.loss_func(out_dict['label'].to(torch.float), out_dict['prediction'])
+        pos, neg = out_dict['pos_prediction'], out_dict['neg_prediction']
+        loss = -(pos - neg).sigmoid().log().sum()
         out_dict['loss'] = loss
         return out_dict

@@ -1,22 +1,16 @@
 from utils import utils
 from loaders.HistLoader import HistLoader
 from loaders.BaseLoader import BaseLoader
-from loaders.MatchingLoader import MatchingLoader
-from loaders.CausalDiscoveryLoader import CausalDiscoveryLoader
-from loaders.GRUCausalDiscoveryLoader import GRUCausalDiscoveryLoader
+from loaders.SDILoader import SDILoader
 from models.GRU4Rec import GRU4Rec
-from models.MF import MF
+from models.item2vec import item2vec
 from models.CSL4RS import CSL4RS
-from models.CausalDiscovery import CausalDiscovery
-from models.GRUCausalDiscovery import GRUCausalDiscovery
-from models.InterGRUCausalDiscovery import InterGRUCausalDiscovery
-from models.GRUCausalDiscoveryPair import GRUCausalDiscoveryPair
-from models.CausalDiscoverySample import CausalDiscoverySample
+from models.CSL4RSLinear import CSL4RSLinear
+from models.CSL4RSMLP import CSL4RSMLP
+from models.SDI import SDI
 from runners.BaseRunner import BaseRunner
 from runners.CSL4RSRunner import CSL4RSRunner
-from runners.PointwiseRunner import PointwiseRunner
-from runners.CausalDiscoveryRunner import CausalDiscoveryRunner
-from runners.InterCausalDiscoveryRunner import InterCausalDiscoveryRunner
+from runners.SDIRunner import SDIRunner
 import argparse
 import logging
 import sys
@@ -103,7 +97,7 @@ def main():
     testset = loader_name(**dl_para_dict)
     testset.set_task('test')
     
-    if init_args.dataloader in ['HistLoader', 'CausalDiscoveryLoader', 'GRUCausalDiscoveryLoader']:
+    if init_args.dataloader in ['HistLoader', 'SDILoader', 'GRUCausalDiscoveryLoader']:
         trainset.get_hist()
         validationset.get_hist(trainset.hist_dict)
         testset.get_hist(validationset.hist_dict)

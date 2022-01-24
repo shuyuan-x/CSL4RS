@@ -126,8 +126,8 @@ class CSL4RS(BaseModel):
         item_vec = self.iid_embeddings(iids)
         gru_prediction = (rnn_vec * item_vec).sum(dim=1).view([-1]).sigmoid()
         
-        prediction = gru_prediction
-#         prediction = torch.pow(mlp_prediction, 1-R) * torch.pow(gru_prediction, R)
+#         prediction = gru_prediction
+        prediction = torch.pow(mlp_prediction, 1-R) * torch.pow(gru_prediction, R)
         
         out_dict = {'prediction': prediction}
         return out_dict

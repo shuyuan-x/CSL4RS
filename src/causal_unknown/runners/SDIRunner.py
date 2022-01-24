@@ -13,7 +13,7 @@ from utils import evaluator
 from utils import utils
 import pdb
 
-class CausalDiscoveryRunner(BaseRunner):
+class SDIRunner(BaseRunner):
     def parse_runner_args(parser):
         parser.add_argument('--gopt', default='Adam', type=str,
                            help='Select gamma optimizer')

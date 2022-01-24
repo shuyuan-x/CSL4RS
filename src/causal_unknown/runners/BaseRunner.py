@@ -105,7 +105,7 @@ class BaseRunner(object):
         - p: a prediction dict, {user: [predictions]}
         - gt: a ground truth dict, {user: [ground truth]}
         """
-        dataLoader = DataLoader(data, batch_size=self.eval_batch_size, shuffle=False, num_workers=16)
+        dataLoader = DataLoader(data, batch_size=self.eval_batch_size, shuffle=False, num_workers=8)
         
         model.eval()
         p = defaultdict(list)

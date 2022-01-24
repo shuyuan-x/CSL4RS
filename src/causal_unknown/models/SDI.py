@@ -6,9 +6,9 @@ import math
 import pdb
 
 
-class CausalDiscovery(BaseModel):
-    loader = 'CausalDiscoveryLoader'
-    runner = 'CausalDiscoveryRunner'
+class SDI(BaseModel):
+    loader = 'SDILoader'
+    runner = 'SDIRunner'
     
     def parse_model_args(parser):
         parser.add_argument('--hidden_size', default=4, type=int,

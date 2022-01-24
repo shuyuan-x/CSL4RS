@@ -5,7 +5,7 @@ import numpy as np
 import pickle
 import pdb
 
-class CausalDiscoveryLoader(HistLoader):
+class SDILoader(HistLoader):
     
     def parse_loader_args(parser):
         parser.add_argument('--intervention_ratio', default=0.5, type=float,

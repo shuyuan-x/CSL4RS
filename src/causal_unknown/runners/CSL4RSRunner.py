@@ -40,7 +40,7 @@ class CSL4RSRunner(BaseRunner):
         losses = []
         
         
-        dataLoader = DataLoader(data, batch_size=self.batch_size, shuffle=True, num_workers=16)
+        dataLoader = DataLoader(data, batch_size=self.batch_size, shuffle=True, num_workers=8)
         model.train()
         pbar = tqdm(total=len(data), leave=False, ncols=100, mininterval=1, desc='Predict')
         for i, batchData in enumerate(dataLoader):
@@ -57,8 +57,9 @@ class CSL4RSRunner(BaseRunner):
             reg = self.l2 * compute_penalty([w_adj], p=1)
             reg = reg / (w_adj.shape[0] ** 2)
             
+#             pdb.set_trace()
             # compute augmented langrangian
-            lagrangian = out_dict['loss'] + reg + self.lambda_t * h + self.l2 * model.l2()
+            lagrangian = out_dict['loss'] - reg + self.lambda_t * h + self.l2 * model.l2()
             augmentation = h ** 2
 #             pdb.set_trace()
             
