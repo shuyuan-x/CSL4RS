@@ -59,7 +59,7 @@ class CSL4RSRunner(BaseRunner):
             
 #             pdb.set_trace()
             # compute augmented langrangian
-            lagrangian = out_dict['loss'] - reg + self.lambda_t * h + self.l2 * model.l2()
+            lagrangian = out_dict['loss'] + reg + self.lambda_t * h
             augmentation = h ** 2
 #             pdb.set_trace()
             

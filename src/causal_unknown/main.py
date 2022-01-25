@@ -4,6 +4,7 @@ from loaders.BaseLoader import BaseLoader
 from loaders.SDILoader import SDILoader
 from models.GRU4Rec import GRU4Rec
 from models.item2vec import item2vec
+from models.notears import notears
 from models.CSL4RS import CSL4RS
 from models.CSL4RSLinear import CSL4RSLinear
 from models.CSL4RSMLP import CSL4RSMLP
