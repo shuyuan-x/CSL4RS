@@ -65,7 +65,7 @@ class item2vec(BaseModel):
         out_dict = {'pos_prediction': pos_prediction, 'neg_prediction': neg_prediction}
         
         
-        return self.predict(batch)
+        return out_dict
     
     def forward(self, batch):
         """
